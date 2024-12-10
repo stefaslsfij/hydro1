@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marine Ecosystem Predictive Model</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- For the graph -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom right, #00bcd4, #4caf50);
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            width: 80%;
+            max-width: 1000px;
+            padding: 20px;
+        }
+
+        .header {
+            margin-top: 50px;
+            padding-top: 50px;
+        }
+
+        .header h1 {
+            font-size: 60px;
+            color: #ffffff;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 22px;
+            color: #f0f8ff;
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+            line-height: 1.6;
+        }
+
+        .btn {
+            background-color: #ff4081;
+            padding: 15px 40px;
+            font-size: 22px;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:hover {
+            background-color: #f50057;
+            transform: scale(1.1);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn:focus {
+            outline: none;
+        }
+
+        .project-container {
+            display: none;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 1200px;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease-in-out;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .simulation-result {
+            margin-top: 30px;
+            color: #333;
+        }
+
+        .simulation-title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #006994;
+            margin-bottom: 10px;
+        }
+
+        .sub-title {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .input-group input, .input-group select {
+            padding: 10px;
+            margin: 15px;
+            border-radius: 8px;
+            border: 2px solid #00bcd4;
+            font-size: 18px;
+            transition: border 0.3s;
+            width: 80%;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: #ff4081;
+        }
+
+        .footer {
+            margin-top: 50px;
+            font-size: 16px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        canvas {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .advanced-calculation {
+            margin-top: 20px;
+            display: none;
+            background-color: #f0f8ff;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .advanced-btn {
+            background-color: #ff4081;
+            padding: 10px 30px;
+            font-size: 20px;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .advanced-btn:hover {
+            background-color: #f50057;
+        }
+
+        .advanced-btn:active {
+            transform: scale(0.95);
+        }
+
+        .input-label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .input-slider {
+            width: 80%;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container header">
+        <h1>Marine Ecosystem Predictive Model</h1>
+        <p>This project simulates and visualizes marine ecosystem dynamics such as fish populations, ocean temperature, and pollution levels. Use historical data to make predictions about the future state of the ecosystem and explore different scenarios.</p>
+        <button class="btn" onclick="exploreProject()">Explore Project</button>
+        <p class="footer">Created and Coded by Stefanos Bantekas</p>
+    </div>
+
+    <div class="container project-container" id="projectContainer">
+        <h2>Marine Ecosystem Simulation</h2>
+        <p class="sub-title">Adjust the inputs to simulate different conditions and visualize how the ecosystem evolves over time.</p>
+
+        <div class="input-group">
+            <label class="input-label" for="fishPopulation">Initial Fish Population:</label>
+            <input type="number" id="fishPopulation" placeholder="Enter initial fish population" value="1000">
+        </div>
+        <div class="input-group">
+            <label class="input-label" for="waterTemp">Initial Water Temperature (°C):</label>
+            <input type="number" id="waterTemp" placeholder="Enter initial water temperature (°C)" value="22">
+        </div>
+        <div class="input-group">
+            <label class="input-label" for="pollutionLevel">Pollution Level (%):</label>
+            <input type="number" id="pollutionLevel" placeholder="Enter pollution level (%)" value="20">
+        </div>
+
+        <div class="input-group">
+            <label class="input-label" for="timeSlider">Simulation Time (Months):</label>
+            <input type="range" id="timeSlider" class="input-slider" min="1" max="12" step="1" value="6" onchange="updateTimeLabel()">
+            <span id="timeLabel">6</span> months
+        </div>
+
+        <div class="input-group">
+            <label class="input-label" for="weather">Weather Conditions:</label>
+            <select id="weather">
+                <option value="normal">Normal</option>
+                <option value="storm">Storm</option>
+                <option value="drought">Drought</option>
+                <option value="flood">Flood</option>
+            </select>
+        </div>
+
+        <button class="btn" onclick="simulateEcosystem()">Run Simulation</button>
+
+        <button class="advanced-btn" onclick="toggleAdvanced()">Advanced Calculation</button>
+
+        <div class="advanced-calculation" id="advancedContainer">
+            <div class="input-group">
+                <label class="input-label" for="location">Select Ocean Area:</label>
+                <select id="location">
+                    <option value="Pacific Ocean">Pacific Ocean</option>
+                    <option value="Atlantic Ocean">Atlantic Ocean</option>
+                    <option value="Indian Ocean">Indian Ocean</option>
+                    <option value="Southern Ocean">Southern Ocean</option>
+                    <option value="Arctic Ocean">Arctic Ocean</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label" for="temperatureAdjustment">Temperature Adjustment (°C):</label>
+                <input type="number" id="temperatureAdjustment" placeholder="Enter temperature adjustment (°C)" value="0">
+            </div>
+
+            <div class="input-group">
+                <label class="input-label" for="pollutionAdjustment">Pollution Adjustment (%):</label>
+                <input type="number" id="pollutionAdjustment" placeholder="Enter pollution adjustment (%)" value="0">
+            </div>
+
+            <button class="btn" onclick="calculateAdvanced()">Calculate Advanced</button>
+        </div>
+
+        <canvas id="ecosystemChart"></canvas>
+    </div>
+
+    <script>
+        // Graph Setup
+        var ctx = document.getElementById('ecosystemChart').getContext('2d');
+        var ecosystemChart;
+
+        function exploreProject() {
+            document.querySelector('.header').style.display = 'none';
+            document.getElementById('projectContainer').style.display = 'block';
+        }
+
+        function updateTimeLabel() {
+            var time = document.getElementById('timeSlider').value;
+            document.getElementById('timeLabel').textContent = time;
+        }
+
+        function simulateEcosystem() {
+            var fishPopulation = document.getElementById('fishPopulation').value;
+            var waterTemp = document.getElementById('waterTemp').value;
+            var pollutionLevel = document.getElementById('pollutionLevel').value;
+            var simulationTime = document.getElementById('timeSlider').value;
+            var weather = document.getElementById('weather').value;
+
+            // Simulation logic and chart plotting
+            var labels = [];
+            var dataFish = [];
+            var dataTemp = [];
+            var dataPollution = [];
+
+            for (let i = 0; i < simulationTime; i++) {
+                labels.push('Month ' + (i + 1));
+                dataFish.push(fishPopulation * (1 - (pollutionLevel / 100)) * (weather === 'storm' ? 0.8 : 1));
+                dataTemp.push(parseFloat(waterTemp) + (Math.random() - 0.5) * 2);
+                dataPollution.push(pollutionLevel);
+            }
+
+            if (ecosystemChart) {
+                ecosystemChart.destroy();
+            }
+
+            ecosystemChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Fish Population',
+                            data: dataFish,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            fill: false
+                        },
+                        {
+                            label: 'Water Temperature (°C)',
+                            data: dataTemp,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            fill: false
+                        },
+                        {
+                            label: 'Pollution Level (%)',
+                            data: dataPollution,
+                            borderColor: 'rgba(255, 159, 64, 1)',
+                            fill: false
+                        }
+                    ]
+                }
+            });
+        }
+
+        function toggleAdvanced() {
+            var advancedContainer = document.getElementById('advancedContainer');
+            advancedContainer.style.display = advancedContainer.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function calculateAdvanced() {
+            var location = document.getElementById('location').value;
+            var temperatureAdjustment = parseFloat(document.getElementById('temperatureAdjustment').value);
+            var pollutionAdjustment = parseFloat(document.getElementById('pollutionAdjustment').value);
+
+            alert(`Advanced Calculation for ${location}:
+Temperature Adjustment: ${temperatureAdjustment}°C
+Pollution Adjustment: ${pollutionAdjustment}%`);
+        }
+    </script>
+</body>
+</html>
